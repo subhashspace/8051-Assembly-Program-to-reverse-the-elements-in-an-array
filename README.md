@@ -4,7 +4,7 @@
 
 ### AIM
 
-To write a program for 8051 to generate a 100 ms delay using timer 1 in mode 2 and toggle the port 2.5 continously.
+To write a program for 8051 to get n size of array and print the array in reversed order in a different memory location.
 
 ---
 
@@ -17,18 +17,16 @@ To write a program for 8051 to generate a 100 ms delay using timer 1 in mode 2 a
 
 ### ALGORITHM
 
-1. Start program execution at address 0000H.
-2. Set Timer 1 in mode 2 (8-bit auto-reload mode).
-3. Load the timer high register (TH1) with 00H.
-4. Initialize outer loop counter (R6) to 2.
-5. For each outer loop:
-
-   * Initialize inner loop counter (R5) to 196.
-   * Start Timer 1 and wait until it overflows (TF1 = 1).
-   * Stop and clear the timer, then repeat until R5 = 0.
-6. Toggle the bit P2.5 after each full inner loop.
-7. Decrease R6 and repeat outer loop until R6 = 0.
-8. Jump back to the beginning to repeat the entire process continuously.
+1. Start the program.
+2. Move the value from memory location 30H into accumulator A.
+3. Copy the value of A into register R2 (used as a loop counter).
+4. If A = 0, jump to DONE and stop execution.
+5. Add 30H to A to form the starting address, store it in R0.
+6. Load R1 with 40H (destination start address).
+7. Copy data byte from source (@R0) to destination (@R1).
+8. Decrement R0, increment R1, and decrement loop counter R2.
+9. Repeat step 7 until R2 = 0.
+10. End the program (infinite jump at DONE).
 
 ---
 
@@ -36,22 +34,20 @@ To write a program for 8051 to generate a 100 ms delay using timer 1 in mode 2 a
 
 ```asm
 ORG 0000H
-MOV TMOD, #20H
-MOV TH1, #00H
-HERE:
-    MOV R6, #2
-OUTER:
-    MOV R5, #196
-INNER:
-    SETB TR1
-WAIT:
-    JNB TF1, WAIT
-    CLR TR1
-    CLR TF1
-    DJNZ R5, INNER
-    CPL P2.5
-    DJNZ R6, OUTER
-    SJMP HERE
+MOV A,30H
+MOV R2,A
+JZ DONE
+ADD A,#30H
+MOV R0,A
+MOV R1,#40H
+AGAIN:
+MOV A,@R0
+MOV @R1,A
+DEC R0
+INC R1
+DJNZ R2,AGAIN
+DONE:
+SJMP $
 END
 ```
 
@@ -59,17 +55,14 @@ END
 
 ### OUTPUT IMAGE FROM KEIL
 
-<img width="600" height="500" alt="Skill assessment 2" src="https://github.com/user-attachments/assets/68e9c2b4-e012-4cdb-8e39-b136d4dd89b7" />
+<img width="600" height="500" alt="SA1-2" src="https://github.com/user-attachments/assets/52cb95c1-ebf7-4b26-b248-142d9c672cd6" />
 
----
 
-### MANUAL CALCULATION
+<img width="600" height="500" alt="SA1-1" src="https://github.com/user-attachments/assets/eb8ab2f0-4341-4993-b0a0-5c3b2427118c" />
 
-- Timer 1 (Mode 2, 8-bit) → 1 tick = 1 µs, overflow = 256 µs.
-- To get 100 ms: 100 000 µs / 256 µs ≈ 391 overflows → use ≈392 loops (≈100.35 ms).
 
 ---
 
 ### RESULT
 
-The 8051 program to generate a 100ms delay using timer 1 in mode 2 and toggle port 2.5 continuously is successful.
+The 8051 program to get an array of n size and print it in reverse order in different memory address is successful.
